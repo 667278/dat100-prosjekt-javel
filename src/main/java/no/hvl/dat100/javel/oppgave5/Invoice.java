@@ -7,18 +7,16 @@ import java.util.Arrays;
 
 public class Invoice {
 
-    private Customer c; 
-    private String month; 
-    private double[][] usage; 
-    private double[][] prices; 
+    private Customer c; // customer associated with this invoice
+    private String month; // month that the invoice covers
+    private double[][] usage; // power usage this month (per day and per hour)
+    private double[][] prices; // power prices for this month
 
-    private double amount; 
+    private double amount; // power price for this month
 
 
     public Invoice(Customer c, String month, double[][] usage, double[][] power_prices) {
-
-        // konstruktør:
-        this.c = c;
+this.c = c;
         this.month = month;
         this.usage = usage;
         this.prices = power_prices;
@@ -27,53 +25,72 @@ public class Invoice {
 
     public void computeAmount() {
 
-        // beregn amount ut fra hvilken avtale kunden har
-        if (c == null) {
-            amount = 0.0;
-            return;
+        double totalAmount = 0.0;
+
+        // Antall dager/perioder og timer per dag antas å være matchende mellom usage og prices.
+        // For SPOTPRICE beregnes per-time kostnad: usage * price
+        // For POWERSUPPORT og NORGESPRICE brukes faste satser per kWh.
+        PowerAgreementType agreement = c.getAgreement();
+
+        if (agreement == PowerAgreementType.SPOTPRICE) {
+
+            for (int d = 0; d < usage.length; d++) {
+                for (int h = 0; h < usage[d].length; h++) {
+                    // safety: hvis prices ikke har samme dimensjon, sjekk for indekser
+                    double price = (prices != null && prices.length > d && prices[d].length > h) ?
+                                   prices[d][h] : 0.0;
+                    totalAmount += usage[d][h] * price;
+                }
+            }
+
+        } else if (agreement == PowerAgreementType.POWERSUPPORT) {
+
+            for (int d = 0; d < usage.length; d++) {
+                for (int h = 0; h < usage[d].length; h++) {
+                    totalAmount += usage[d][h] * POWERSUPPORT_RATE;
+                }
+            }
+
+        } else if (agreement == PowerAgreementType.NORGESPRICE) {
+
+            for (int d = 0; d < usage.length; d++) {
+                for (int h = 0; h < usage[d].length; h++) {
+                    totalAmount += usage[d][h] * NORGESPRICE_RATE;
+                }
+            }
+
+        } else {
+            // Ukjent avtale: sett amount til 0 (eller håndter etter behov)
+            totalAmount = 0.0;
         }
 
-        switch (c.getAgreement()) {
-
-            case SPOTPRICE:
-                // total kostnad basert på spotpris (uten støtte)
-                amount = MonthlyPower.computeSpotPrice(usage, prices);
-                break;
-
-            case POWERSUPPORT:
-                // spotpris minus støtte
-                double spot = MonthlyPower.computeSpotPrice(usage, prices);
-                double support = MonthlyPower.computePowerSupport(usage, prices);
-                amount = spot - support;
-                break;
-
-            case NORGESPRICE:
-                // fastpris (Norgespris)
-                amount = MonthlyPower.computeNorgesPrice(usage);
-                break;
-
-            default:
-                amount = 0.0;
-                break;
-        }
+        this.amount = totalAmount;
     }
 
     public void printInvoice() {
 
-        double totalUsage = MonthlyPower.computePowerUsage(usage);
-
-        System.out.println("========================");
-        if (c != null) {
-            System.out.printf("Customer number %d%n", c.getCustomerId());
-            System.out.printf("Name  %s%n", c.getName());
-            System.out.printf("Email %s%n", c.getEmail());
-            System.out.printf("Agreement %s%n", c.getAgreement());
-        } else {
-            System.out.println("Customer: null");
+        // summer total bruk (kWh) for utskrift
+        double totalUsage = 0.0;
+        for (int d = 0; d < usage.length; d++) {
+            for (int h = 0; h < usage[d].length; h++) {
+                totalUsage += usage[d][h];
+            }
         }
-        System.out.printf("Month: %s%n", month == null ? "" : month);
-        System.out.printf("Usage:   %10.2f kWh%n", totalUsage);
-        System.out.printf("Amount:  %10.2f NOK%n", amount);
-        System.out.println("========================");
+
+        // Her antas at Customer-klassen har metoder:
+        // getNumber(), getName(), getEmail(), getAgreement()
+        System.out.println("Customer number " + c.getNumber());
+        System.out.println("Name  " + c.getName());
+        System.out.println("Email " + c.getEmail());
+        System.out.println("Agreement " + c.getAgreement());
+        System.out.println();
+        System.out.println("Month: " + month);
+        System.out.printf("Usage:      %.2f kWh%n", totalUsage);
+        System.out.printf("Amount:    %.2f NOK%n", amount);
+    }
+
+    // valgfri getter
+    public double getAmount() {
+        return amount;
     }
 }
