@@ -2,91 +2,94 @@ package no.hvl.dat100.javel.oppgave1;
 
 public class DailyPower {
 
-    // a) print power prices during a day
+    // a) Skrive ut strømpriser (NOK per kWh)
     public static void printPowerPrices(double[] prices) {
-
-        // TODO
-
+        for (int i = 0; i < prices.length; i++) {
+            System.out.printf("%.2f NOK ", prices[i]);
+        }
+        System.out.println();
     }
 
-    // b) print power usage during a day
+    // b) Skrive ut strømforbruk (kWh)
     public static void printPowerUsage(double[] usage) {
-
-        // TODO
-
+        for (int i = 0; i < usage.length; i++) {
+            System.out.printf("%.2f kWh ", usage[i]);
+        }
+        System.out.println();
     }
 
-    // c) compute power usage for a single day
+    // c) Total strømforbruk for en dag (sum kWh)
     public static double computePowerUsage(double[] usage) {
-
-        double sum = 0;
-
-        // TODO
-
-        return sum;
+        double total = 0.0;
+        for (int i = 0; i < usage.length; i++) {
+            total += usage[i];
+        }
+        return total;
     }
 
-    // d) compute spot price for a single day
+    // d) Strømpris med spotpris (sum over usage[i] * prices[i])
     public static double computeSpotPrice(double[] usage, double[] prices) {
-
-        double price = 0;
-
-        // TODO
-
-        return price;
+        int n = Math.min(usage.length, prices.length);
+        double total = 0.0;
+        for (int i = 0; i < n; i++) {
+            total += usage[i] * prices[i];
+        }
+        return total;
     }
 
-    // e) compute power support for a given usage and price
-    private static final double THRESHOLD = 0.9375;
-    private static final double PERCENTAGE = 0.9;
-
+    // e) Hjelpemetode: støtte for én time
+    // Dekkes 90% av prisen som er over 93.75 øre (0.9375 NOK)
     private static double getSupport(double usage, double price) {
-
-        double support = 0;
-
-        // TODO
-
-        return support;
+        double threshold = 0.9375; // NOK
+        double excess = price - threshold;
+        if (excess <= 0.0) {
+            return 0.0;
+        }
+        // støtte per kWh er 90% av excess, så times-støtte = usage * 0.9 * excess
+        return usage * 0.9 * excess;
     }
 
-    // f) compute power support for a single day
+    // f) Strømstøtte for hele dagen (sum av getSupport)
     public static double computePowerSupport(double[] usage, double[] prices) {
-
-        double support = 0;
-
-        // TODO
-
-        return support;
+        int n = Math.min(usage.length, prices.length);
+        double totalSupport = 0.0;
+        for (int i = 0; i < n; i++) {
+            totalSupport += getSupport(usage[i], prices[i]);
+        }
+        return totalSupport;
     }
 
-    private static final double NORGESPRIS_KWH = 0.5;
-
-    // g) compute norges pris for a single day
+    // g) Norgespris: fast pris 0.50 NOK per kWh
     public static double computeNorgesPrice(double[] usage) {
-
-        double price = 0;
-
-        // TODO
-
-        return price;
+        double rate = 0.50; // NOK per kWh
+        double total = 0.0;
+        for (int i = 0; i < usage.length; i++) {
+            total += usage[i] * rate;
+        }
+        return total;
     }
 
-    // g) compute peak usage during a single day
+    // h) Størst strømforbruk (maks kWh på en time)
     public static double findPeakUsage(double[] usage) {
-
-        double temp_max = 0;
-
-        // TODO
-
-        return temp_max;
+        if (usage == null || usage.length == 0) {
+            return 0.0;
+        }
+        double max = usage[0];
+        for (int i = 1; i < usage.length; i++) {
+            if (usage[i] > max) {
+                max = usage[i];
+            }
+        }
+        return max;
     }
 
+    // i) Gjennomsnitt strømforbruk per time
     public static double findAvgPower(double[] usage) {
-
-        double average = 0;
-
-        // TODO
-
-        return average;
+        if (usage == null || usage.length == 0) {
+            return 0.0;
+        }
+        double total = computePowerUsage(usage);
+        return total / usage.length;
     }
+
 }
