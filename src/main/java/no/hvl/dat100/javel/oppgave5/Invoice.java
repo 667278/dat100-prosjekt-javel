@@ -14,9 +14,12 @@ public class Invoice {
 
     private double amount; // power price for this month
 
+    private static final double SUPPORT_THRESHOLD = 0.9375; // 93,75 øre = 0.9375 NOK
+    private static final double SUPPORT_RATE = 0.90;       // 90%
+    private static final double NORGES_PRICE_RATE = 0.50;  // 50 øre = 0.50 NOK/kWh
 
     public Invoice(Customer c, String month, double[][] usage, double[][] power_prices) {
-this.c = c;
+        this.c = c;
         this.month = month;
         this.usage = usage;
         this.prices = power_prices;
@@ -25,51 +28,59 @@ this.c = c;
 
     public void computeAmount() {
 
-        double totalAmount = 0.0;
+        double total = 0.0;
 
-        // Antall dager/perioder og timer per dag antas å være matchende mellom usage og prices.
-        // For SPOTPRICE beregnes per-time kostnad: usage * price
-        // For POWERSUPPORT og NORGESPRICE brukes faste satser per kWh.
         PowerAgreementType agreement = c.getAgreement();
 
         if (agreement == PowerAgreementType.SPOTPRICE) {
 
+            // sum usage * price per hour over whole month
             for (int d = 0; d < usage.length; d++) {
                 for (int h = 0; h < usage[d].length; h++) {
-                    // safety: hvis prices ikke har samme dimensjon, sjekk for indekser
-                    double price = (prices != null && prices.length > d && prices[d].length > h) ?
-                                   prices[d][h] : 0.0;
-                    totalAmount += usage[d][h] * price;
+                    double u = usage[d][h];
+                    double p = (prices != null && prices.length > d && prices[d].length > h) ? prices[d][h] : 0.0;
+                    total += u * p;
                 }
             }
 
         } else if (agreement == PowerAgreementType.POWERSUPPORT) {
 
+            // for each hour: cost = usage * price - support
+            // support = usage * max(0, price - SUPPORT_THRESHOLD) * SUPPORT_RATE
             for (int d = 0; d < usage.length; d++) {
                 for (int h = 0; h < usage[d].length; h++) {
-                    totalAmount += usage[d][h] * POWERSUPPORT_RATE;
+                    double u = usage[d][h];
+                    double p = (prices != null && prices.length > d && prices[d].length > h) ? prices[d][h] : 0.0;
+                    double hourCost = u * p;
+                    double support = 0.0;
+                    if (p > SUPPORT_THRESHOLD) {
+                        support = u * (p - SUPPORT_THRESHOLD) * SUPPORT_RATE;
+                    }
+                    total += hourCost - support;
                 }
             }
 
         } else if (agreement == PowerAgreementType.NORGESPRICE) {
 
+            // flat rate per kWh
+            double totalUsage = 0.0;
             for (int d = 0; d < usage.length; d++) {
                 for (int h = 0; h < usage[d].length; h++) {
-                    totalAmount += usage[d][h] * NORGESPRICE_RATE;
+                    totalUsage += usage[d][h];
                 }
             }
+            total = totalUsage * NORGES_PRICE_RATE;
 
         } else {
-            // Ukjent avtale: sett amount til 0 (eller håndter etter behov)
-            totalAmount = 0.0;
+            total = 0.0; // ukjent avtale
         }
 
-        this.amount = totalAmount;
+        this.amount = total;
     }
 
     public void printInvoice() {
 
-        // summer total bruk (kWh) for utskrift
+        // total usage
         double totalUsage = 0.0;
         for (int d = 0; d < usage.length; d++) {
             for (int h = 0; h < usage[d].length; h++) {
@@ -77,20 +88,26 @@ this.c = c;
             }
         }
 
-        // Her antas at Customer-klassen har metoder:
-        // getNumber(), getName(), getEmail(), getAgreement()
+        // Assume Customer has methods: getNumber(), getName(), getEmail(), getAgreement()
         System.out.println("Customer number " + c.getNumber());
         System.out.println("Name  " + c.getName());
         System.out.println("Email " + c.getEmail());
         System.out.println("Agreement " + c.getAgreement());
         System.out.println();
         System.out.println("Month: " + month);
-        System.out.printf("Usage:      %.2f kWh%n", totalUsage);
-        System.out.printf("Amount:    %.2f NOK%n", amount);
+        System.out.printf("Usage:     %.2f kWh%n", totalUsage);
+        System.out.printf("Amount:   %.2f NOK%n", amount);
     }
 
-    // valgfri getter
     public double getAmount() {
         return amount;
+    }
+
+    public Customer getCustomer() {
+        return c;
+    }
+
+    public String getMonth() {
+        return month;
     }
 }
