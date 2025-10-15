@@ -16,13 +16,35 @@ public class DayMain {
         System.out.println("==============");
         System.out.println();
 
-        /*
-        TODO
+        // a) og b) Utskrift av timesdata
+        System.out.println("=== Strømforbruk per time (kWh) ===");
+        DailyPower.printPowerUsage(powerusage_day);
 
-         Write code that tests the methods you implement in the DailyPower class
-         Remember to teste the methods as you implement them
-         Remember to also to check that you get the expected results
-         */
+        System.out.println("\n=== Spotpris per time (NOK/kWh) ===");
+        DailyPower.printPowerPrices(powerprices_day);
 
+        // c) Total strømforbruk
+        double totalUsage = DailyPower.computePowerUsage(powerusage_day);
+        System.out.printf("%nTotalt strømforbruk i dag: %.2f kWh%n", totalUsage);
+
+        // d) Total kostnad med spotpris
+        double spotCost = DailyPower.computeSpotPrice(powerusage_day, powerprices_day);
+        System.out.printf("Total kostnad med spotpris: %.2f NOK%n", spotCost);
+
+        // f) Strømstøtte (beregnes fra usage og prices)
+        double support = DailyPower.computePowerSupport(powerusage_day, powerprices_day);
+        System.out.printf("Strømstøtte i dag: %.2f NOK%n", support);
+
+        // g) Norgespris (fastpris 0.50 NOK/kWh)
+        double norges = DailyPower.computeNorgesPrice(powerusage_day);
+        System.out.printf("Kostnad med Norgespris (0.50 NOK/kWh): %.2f NOK%n", norges);
+
+        // h) Største forbrukstime
+        double peak = DailyPower.findPeakUsage(powerusage_day);
+        System.out.printf("Største forbruk i én time: %.2f kWh%n", peak);
+
+        // i) Gjennomsnittlig forbruk per time
+        double avg = DailyPower.findAvgPower(powerusage_day);
+        System.out.printf("Gjennomsnittlig forbruk per time: %.2f kWh%n", avg);
     }
 }
