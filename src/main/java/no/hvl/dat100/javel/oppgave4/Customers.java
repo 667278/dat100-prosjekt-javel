@@ -6,63 +6,77 @@ public class Customers {
 
     private Customer[] customers;
 
-    // a) Complete constructor
+    // a) Konstruktør
     public Customers(int size) {
-
-        // TODO
-
+        customers = new Customer[size];
     }
 
-    // b) count number of non-null references
+    // b) Telle antall kunder (ikke-null)
     public int countNonNull() {
-
-
         int count = 0;
-
-        // TODO
-
+        for (Customer c : customers) {
+            if (c != null) {
+                count++;
+            }
+        }
         return count;
     }
 
-    // c) return reference to customer with given id (if exists)
-    public Customer getCustomer(int customer_id) {
-
-        boolean funnet = false;
-        Customer c = null;
-
-        // TODO
-
-        return c;
+    // c) Hente kunde etter customerId
+    public Customer getCustomer(int customerId) {
+        if (customers == null) return null;
+        for (Customer c : customers) {
+            if (c != null && c.getCustomerId() == customerId) {
+                return c;
+            }
+        }
+        return null;
     }
 
-    // d) add a customer to the reference table
+    // d) Sette inn kunde på første ledige plass
     public boolean addCustomer(Customer c) {
+        if (c == null || customers == null) return false;
 
-        boolean inserted = false;
-
-        // TODO
-
-        return inserted;
+        for (int i = 0; i < customers.length; i++) {
+            if (customers[i] == null) {
+                customers[i] = c;
+                return true;
+            }
+        }
+        return false; // ingen ledig plass
     }
 
-    // e) remove customer with given id from reference table
-    public Customer removeCustomer(int customer_id) {
-
-        boolean deleted = false;
-        Customer c = null;
-
-        // TODO
-
-        return c;
+    // e) Slette kunde (sett plass til null og returner referansen)
+    public Customer removeCustomer(int customerId) {
+        if (customers == null) return null;
+        for (int i = 0; i < customers.length; i++) {
+            Customer c = customers[i];
+            if (c != null && c.getCustomerId() == customerId) {
+                customers[i] = null;
+                return c;
+            }
+        }
+        return null;
     }
 
-    // f) return reference table with all customers
+    // f) Returner ny tabell med kun eksisterende kunder (ingen nuller)
     public Customer[] getCustomers() {
+        int n = countNonNull();
+        Customer[] existing = new Customer[n];
+        int idx = 0;
+        for (Customer c : customers) {
+            if (c != null) {
+                existing[idx++] = c;
+            }
+        }
+        return existing;
+    }
 
-        Customer[] customers = null;
-
-        // TODO
-
-        return customers;
+    // Hjelpemetode for testing / debug (valgfri)
+    public void printInternal() {
+        System.out.println("Internal customers array (length=" + customers.length + "):");
+        for (int i = 0; i < customers.length; i++) {
+            System.out.printf("slot %d: %s%n", i, customers[i] == null ? "null" : customers[i].toString());
+        }
     }
 }
