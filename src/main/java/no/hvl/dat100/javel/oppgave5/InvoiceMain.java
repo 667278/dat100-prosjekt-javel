@@ -13,12 +13,6 @@ public class InvoiceMain {
         System.out.println("==============");
         System.out.println();
 
-        /*
-        TODO
-
-         Write code that uses the methods implemented in the Invoice-classes
-
-        */
-
+        
     }
 }
