@@ -2,7 +2,7 @@ package no.hvl.dat100.javel.oppgave1;
 
 public class DailyPower {
 
-    // a) Skrive ut strømpriser (NOK per kWh)
+    // a) Skriv ut strømpriser (NOK per kWh)
     public static void printPowerPrices(double[] prices) {
         for (int i = 0; i < prices.length; i++) {
             System.out.printf("%.2f NOK ", prices[i]);
@@ -10,7 +10,7 @@ public class DailyPower {
         System.out.println();
     }
 
-    // b) Skrive ut strømforbruk (kWh)
+    // b) Skriv ut strømforbruk (kWh)
     public static void printPowerUsage(double[] usage) {
         for (int i = 0; i < usage.length; i++) {
             System.out.printf("%.2f kWh ", usage[i]);
@@ -18,7 +18,7 @@ public class DailyPower {
         System.out.println();
     }
 
-    // c) Total strømforbruk for en dag (sum kWh)
+    // c) Totalt strømforbruk for en dag (sum kWh)
     public static double computePowerUsage(double[] usage) {
         double total = 0.0;
         for (int i = 0; i < usage.length; i++) {
@@ -45,11 +45,10 @@ public class DailyPower {
         if (excess <= 0.0) {
             return 0.0;
         }
-        // støtte per kWh er 90% av excess, så times-støtte = usage * 0.9 * excess
         return usage * 0.9 * excess;
     }
 
-    // f) Strømstøtte for hele dagen (sum av getSupport)
+    // f) Strømstøtte for hele dagen
     public static double computePowerSupport(double[] usage, double[] prices) {
         int n = Math.min(usage.length, prices.length);
         double totalSupport = 0.0;
