@@ -7,17 +7,17 @@ import java.util.Arrays;
 
 public class Invoice {
 
-    private Customer c; // customer associated with this invoice
-    private String month; // month that the invoice covers
-    private double[][] usage; // power usage this month (per day and per hour)
-    private double[][] prices; // power prices for this month
+    private Customer c; 
+    private String month; 
+    private double[][] usage; 
+    private double[][] prices; 
 
-    private double amount; // power price for this month
+    private double amount; 
 
 
     public Invoice(Customer c, String month, double[][] usage, double[][] power_prices) {
 
-        // konstruktør: sett alle felt bortsett fra amount som settes til 0
+        // konstruktør:
         this.c = c;
         this.month = month;
         this.usage = usage;
