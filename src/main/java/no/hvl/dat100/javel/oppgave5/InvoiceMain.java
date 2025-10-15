@@ -23,8 +23,8 @@ public class InvoiceMain {
         double[][] usage2 = CustomerPowerUsageData.usage_month_customer2;
         double[][] usage3 = CustomerPowerUsageData.usage_month_customer3;
 
-        // Priser for januar: bytt til det feltet/metoden som finnes i ditt prosjekt
-        double[][] januaryPrices = MonthPowerData.PRICES_JANUARY; // <-- BYTT hvis feil navn
+        // Priser for januar:
+        double[][] januaryPrices = MonthPowerData.powerprices_month;
 
         Invoice inv1 = new Invoice(cust1, "January", usage1, januaryPrices);
         Invoice inv2 = new Invoice(cust2, "January", usage2, januaryPrices);
